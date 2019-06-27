@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace表示命名空间，后续调用sql语句的时候会用到 -->
+<mapper namespace="com.lee.mybatis1.ProductSpace">
+    <!--
+        id:一个标识，唯一键，以供后续代码调用
+        resultType:表示返回的数据和Category关联起来
+        这里本来应该使Category用com.lee.mybatis1.entity.Category，但是因为在mybatis-config.xml中配置了别名，所以可以直接使用Catrgory
+     -->
+    <!-- 查询所有 -->
+    <select id="listProductChoose" resultType="Product">
+        select * from product
+        <where>
+            <if test="name!=null">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="#{price!=null and price!=0}">
+                and price>#{price}
+            </if>
+        </where>
+    </select>
+    <!-- 增加 -->
+    <insert id="addProduct" parameterType="Product">
+        insert into product (name,price,groups) values (#{name},#{price},#{groups})
+    </insert>
+    <!-- 删除 -->
+    <delete id="deleteProduct" parameterType="int">
+        delete from Product where id=#{id}
+    </delete>
+    <!-- 更新 -->
+    <update id="updateProduct" parameterType="Product">
+        update product set name=#{name},price=#{price},groups=#{groups} where id=#{id}
+    </update>
+    <!-- 按条件查询 -->
+    <select id="getProductById" parameterType="int" resultType="Product">
+        select * from product where id=#{id}
+    </select>
+    <!-- 模糊查询 -->
+    <select id="listProductByName" parameterType="String" resultType="Product">
+        select * from product where name like concat('%',#{0},'%')
+        <!--
+            concat是MySQL的函数，用来连接字符串-
+            Oracle语句：select * from product where name like '%'||#{0}||'%'
+        -->
+    </select>
+    <!-- 多条件查询 -->
+    <select id="listProductByNameAndId" parameterType="Map" resultType="Product">
+        select * from product where id>#{id} and name like concat('%',#{name},'%')
+    </select>
+
+    <resultMap id="productBean" type="Product">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="price" property="price"/>
+
+        <!--多对一-->
+        <association property="category" javaType="Category">
+            <id column="cid" property="id"/>
+            <result column="cname" property="name"/>
+        </association>
+    </resultMap>
+
+    <select id="listProduct2" resultMap="productBean">
+        select p.*,c.id 'cid',c.name 'cname' from category c left join product p on c.id = p.groups
+    </select>
+    <!--不写parameterType好像也可以传入一些简单的值-->
+    <select id="getProduct" resultMap="productBean">
+        select c.*, p.*, c.id 'cid', p.id 'pid', c.name 'cname', p.name 'pname'
+        from category c
+        left join product p on c.id = p.groups
+        where p.id = #{id}
+    </select>
+</mapper>

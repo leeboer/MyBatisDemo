@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- 配置自动扫描com.lee.mybatis1.entity包下的类型，使得在后续配置文件Category.xml中使用resultType的时候可以直接使用Category
+     而不用写全路径com.lee.mybaits1.entity.Category-->
+    <typeAliases>
+        <package name="com.lee.mybatis1.entity"/>
+    </typeAliases>
+
+    <environments default="environments">
+        <environment id="environments">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="oracle.jdbc.OracleDriver"/>
+                <property name="url" value="jdbc:oracle:thin:@localhost:tarena10g"/>
+                <property name="username" value="root"/>
+                <property name="password" value="admin"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!--映射Catrgory.xml-->
+    <mappers>
+        <mapper resource="com/lee/mybatis1/entity/Category.xml"/>
+    </mappers>
+
+</configuration>
